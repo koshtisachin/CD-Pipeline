@@ -1,0 +1,9 @@
+---
+- name: Run Common Tasks
+  hosts: Production-nodes
+  become: yes
+  gather_facts: no
+  connection: local
+
+  roles:
+    - common
