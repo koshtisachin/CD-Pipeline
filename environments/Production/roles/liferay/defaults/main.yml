@@ -1,0 +1,64 @@
+---
+### Specific variable related to the alfresco host are defined here.
+
+## geerlingguy java
+java_home: '/opt/jdk1.8.0_191'
+
+# tomcat
+java_opts: '-Xms512m -Xmx2048m -Xss768k -XX:NewSize=348m -server'
+tomcat_dir: '{{ liferay_home }}/tomcat-{{ liferay_bundle_tomcat_version }}'
+tomcat_port_ajp: '8009'
+tomcat_port_https: '8443'
+tomcat_port_shutdown: '8005'
+
+# mysql-java-connector
+setup_mysql_java_connector: true
+mysql_connector_version: '5.1.40'
+
+# mysql
+mysql_root_db_pass: 'Pass@#123'
+mysql_port: '3306'
+mysql_bind_address: '0.0.0.0'
+ip_mysql: 'localhost'
+
+liferay_port: '8080'
+liferay_db_user: 'liferay'
+liferay_db_password: 'Pass@#123'
+liferay_default_database_url: "jdbc:mysql://{{ ip_mysql }}/liferay?useUnicode=true&useFastDateParsing=false"
+
+# Liferay archive to be installed. If the file in `local` exists it will be used. 
+#liferay_archive_url: 'https://s3.amazonaws.com/cdsoftwares/Liferay/Liferay-DXP-7.1/liferay-dxp-tomcat-7.1.10-ga1-20180703090613030.zip'
+liferay_archive_url: 'https://s3.amazonaws.com/cdsoftwares/Liferay/Liferay7SP1/liferay-dxp-digital-enterprise-tomcat-7.0-sp4-20170705142422877.zip'
+liferay_license_file_url: 'https://s3.amazonaws.com/cdsoftwares/Liferay/Liferay-DXP-7.1/LRDXPLicenses-2018/activation-key-digitalenterprisedevelopment-7.0-liferaytrial+-+cluster.xml'
+#liferay_version: '7.1.10'
+liferay_version: '7.0.10'
+#liferay_bundle_base_dir_name: 'liferay-dxp-7.1.10-ga1'
+liferay_bundle_base_dir_name: 'liferay-dxp-digital-enterprise-7.0-sp4'
+
+# The folder on the server whe the Liferay bundle will be unpacked
+liferay_unpack_folder: '/opt'
+
+# Liferay's home folder.
+liferay_home: '/opt/liferay'
+
+# The operating system user and group that will be used to run Liferay
+liferay_user: 'liferay'
+liferay_group: 'liferay'
+
+# A folder where files from Liferay's document library will be stored.
+liferay_dl_folder: '{{ liferay_home }}/data/document_library/'
+
+# The version of the Tomcat that is bundled in the current Liferay Portal server installation
+liferay_bundle_tomcat_version: '8.0.32'
+liferay_tomcat_dir: '{{ liferay_home }}/tomcat-{{ liferay_bundle_tomcat_version }}'
+
+liferay_autodeploy_dir: '{{liferay_home}}/deploy'
+liferay_enable_remote_debug: false
+
+liferay_cluster_autodetect: google.com:80
+
+# db
+liferay_db_host: 'localhost'
+liferay_default_database_driver : 'com.mysql.jdbc.Driver'
+# Additional databases to be added to Liferay's configuration
+liferay_additional_databases: []

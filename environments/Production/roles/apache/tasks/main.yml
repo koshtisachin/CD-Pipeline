@@ -1,0 +1,21 @@
+---
+
+- name: Install Apache Web Server for Reverse Proxy to Liferay Application
+  yum: name={{item}} state=present update_cache=yes
+  with_items:
+    - httpd
+    - httpd-devel
+    - httpd-tools
+
+- name: Copy virtualhost configuration to the server 
+  template:
+    src=liferay.com.conf.j2
+    dest=/etc/httpd/conf.d/liferay.com.conf
+    owner=root
+    group=root
+    mode=644
+
+- name: start the httpd service
+  service: name=httpd state=started enabled=yes
+
+

@@ -1,9 +1,14 @@
 ---
-- name: Run Common Tasks
-  hosts: Production-nodes
+- hosts: cignex
   become: yes
-  gather_facts: no
-  connection: local
+  become_user: root
+  gather_facts: yes
 
   roles:
+    - apache
+    - oracle-java-jdk18
     - common
+    - mysql
+    - liferay
+
+

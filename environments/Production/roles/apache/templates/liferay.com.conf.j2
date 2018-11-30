@@ -1,0 +1,12 @@
+<VirtualHost *:80>
+    ServerAdmin techsupport@cignex.com
+    ServerName devopsdemo.cignex.com
+    ServerAlias demo.liferay.cignex.com
+    ErrorLog logs/devopsdemo.cignex.com-error_log
+    CustomLog logs/devopsdemo.cignex.com-access_log common
+    ProxyPreserveHost   On
+    ProxyPass	/robots.txt !
+    ProxyPass           /       http://localhost:8080/
+    ProxyPassReverse    /       http://localhost:8080/
+
+</VirtualHost>

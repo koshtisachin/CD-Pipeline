@@ -1,10 +1,48 @@
-- name: Copy the EPEL repository definition
-  copy: src=epel.repo dest=/etc/yum.repos.d/
-- name: Create the GPG key for EPEL
-  copy: src=RPM-GPG-KEY-EPEL-7 dest=/etc/pki/rpm-gpg
-- name: Install Firewalld
-  yum: name=firewalld state=absent
-- name: Firewalld service state
+---
+- name: Check Firewalld Package Status
+  yum: name=firewalld state=present
+
+- name: Firewalld Service State
   service: name=firewalld state=stopped enabled=no
-- name: Turn Off SELinux
-  command: setenforce 0
+
+- name: Disable SELinux in Config File
+  command: sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+  ignore_errors: yes
+
+- name: Install EPEL-Repository
+  yum_repository:   
+    name: epel
+    description: EPEL YUM repo
+    baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+
+- name: Install Basic Packages for Production Server
+  yum: name={{item}} state=installed update_cache=yes
+  with_items:
+    - wget
+#    - git
+    - vim
+    - make
+#    - gcc
+#    - python2-pip
+    - net-tools
+    - telnet
+    - ntp
+    - curl
+#    - java-1.8.0-openjdk
+#    - java-1.8.0-openjdk-devel
+    - psmisc      
+#    - MySQL-python        
+
+- name: Start NTP Service and enable at boot
+  service: name=ntpd state=started enabled=yes
+
+# this task will install/upgrade packages on server
+- name: Upgrade System Packages on server
+  yum: name="*" state=latest
+  register: yum_update
+
+# this task is to check if kernel update happend and system needs reboot or not
+- name: check if reboot required after kernel update.
+  shell: KERNEL_NEW=$(rpm -q –last kernel |head -1 | awk ‘{print $1}’ | sed ‘s/kernel-//’); KERNEL_NOW=$(uname -r); if [[ $KERNEL_NEW != $KERNEL_NOW ]]; then echo "reboot_needed"; else echo "reboot_not_needed"; fi
+  ignore_errors: true
+  register: reboot_required

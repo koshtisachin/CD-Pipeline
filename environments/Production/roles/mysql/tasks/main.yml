@@ -1,0 +1,63 @@
+---
+- name: Install MySQL 5.7 repo
+  yum: name=http://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm state=present
+
+- name: Install MySQL 5.7
+  yum: pkg={{ item }}
+  with_items:
+    - mysql-community-server
+    - mysql-community-client
+    - MySQL-python
+
+- name: Start the MySQL service
+  service: name=mysqld state=started enabled=true
+
+- name: Change mysql root password and keep track in 
+  shell: | 
+    password_match=`awk '/A temporary password is generated for/ {a=$0} END{ print a }' /var/log/mysqld.log | awk '{print $(NF)}'`
+    echo $password_match
+    mysql -uroot -p$password_match --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Pass@#123'; flush privileges; "
+    echo "[client]" > /root/.my.cnf
+    echo "user=root" >> /root/.my.cnf
+    echo "password='Pass@#123'" >> /root/.my.cnf
+
+- name: update mysql root password for all root accounts
+  mysql_user: name=root host={{ item }} password=Pass@#123
+  with_items:
+    - '{{ ansible_hostname }}'
+    - 127.0.0.1
+    - ::1
+    - localhost
+    - 0.0.0.0
+    - '%'
+
+- name: "Create a Liferay database"
+  mysql_db: login_host= {{liferay_db_host}} login_user=root login_password='Pass@#123' name=liferay state=present
+
+- name: Create Liferay MySQL User for Liferay Application
+  mysql_user: name=liferay password='Pass@#123' priv=liferay.*:ALL host='%' state=present
+
+- name: Download Liferay Database Dump from S3 Bucket
+  shell: 'wget {{liferay_db_dump_url}} -O /tmp/liferay-db-dump.sql creates=/tmp/liferay-db-dump.sql'
+  register: liferay_db_dump_downloaded
+
+- name: import the database
+  mysql_db: name=liferay state=import target=/tmp/liferay-db-dump.sql login_host={{liferay_db_host}} login_user=root login_password='Pass@#123'
+ 
+#- name: import test dump to userdb database
+#  mysql_db: name=liferay state=import target=/tmp/dump.sql
+
+#    args:
+#      creates: /root/.my.cnf
+#    register: change_temp_pass
+#    notify: restart mysqld
+
+#  - meta: flush_handlers
+#  - debug:
+#      var: change_temp_pass
+
+#handlers:
+#  - name: restart mysqld
+#      service: 
+#      name: mysqld 
+#      state: restarted
